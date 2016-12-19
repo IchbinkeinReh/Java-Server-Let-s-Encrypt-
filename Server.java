@@ -111,11 +111,12 @@ class HTTPSserver extends X509ExtendedKeyManager  {
 	    reloadCert.run();
 	    SSLContext sslContext = SSLContext.getInstance("TLS");
 	    sslContext.init(new KeyManager[] { this }, null, new SecureRandom());
-
+	    SSLContext.setDefault(sslContext);
+	    
 	    HttpsServer server = HttpsServer.create(new InetSocketAddress(HTTPSportNumber), 0);
 	    server.createContext("/", httpHandler);
 	    server.setExecutor(Executors.newCachedThreadPool());
-	    server.setHttpsConfigurator(new HttpsConfigurator(sslContext));
+	    server.setHttpsConfigurator(new HttpsConfigurator(SSLContext.getDefault()));
 	    server.start();
 	} catch (Exception e) {
 	    e.printStackTrace();
@@ -123,7 +124,7 @@ class HTTPSserver extends X509ExtendedKeyManager  {
     }
 
     public static void main(String[] arg) {
-	new HTTPSserver(443, "/etc/letsencrypt/live/YOUR_CN_NAME", new HttpHandler() {
+	new HTTPSserver(443, "/etc/letsencrypt/live/YOUR_CN", new HttpHandler() {
 
 	    @Override
 	    public void handle(HttpExchange t) throws IOException {
